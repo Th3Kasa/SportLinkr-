@@ -54,19 +54,28 @@ export default function VenueCard({ venue, sportId, onClick, isSelected }) {
         aria-hidden="true"
       />
 
-      {/* Top row: sport badge + unverified chip */}
+      {/* Top row: sport badge + distance chip + unverified chip */}
       <div className="relative flex items-center justify-between mb-4">
-        <span
-          className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border"
-          style={{
-            background: `${sport.color}15`,
-            color: sport.color,
-            borderColor: `${sport.color}30`,
-          }}
-        >
-          <SportIcon iconName={sport.icon} className="w-3 h-3" />
-          {sport.label}
-        </span>
+        <div className="flex items-center gap-2 flex-wrap">
+          <span
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium border"
+            style={{
+              background: `${sport.color}15`,
+              color: sport.color,
+              borderColor: `${sport.color}30`,
+            }}
+          >
+            <SportIcon iconName={sport.icon} className="w-3 h-3" />
+            {sport.label}
+          </span>
+          {venue.distanceKm != null && (
+            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs text-white/40 bg-white/[0.04] border border-white/[0.06]">
+              {venue.distanceKm < 1
+                ? `${(venue.distanceKm * 1000).toFixed(0)} m away`
+                : `${venue.distanceKm.toFixed(1)} km away`}
+            </span>
+          )}
+        </div>
         {venue.unverified && (
           <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-400/10 border border-amber-400/20 text-amber-400">
             <AlertCircle className="w-3 h-3" aria-hidden="true" />

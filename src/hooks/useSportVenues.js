@@ -2,6 +2,14 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { buildOverpassQuery } from '../utils/overpassQueries'
 import { composeAddress, roundCoord } from '../utils/formatters'
 
+function haversineKm(lat1, lon1, lat2, lon2) {
+  const R = 6371
+  const dLat = (lat2 - lat1) * Math.PI / 180
+  const dLon = (lon2 - lon1) * Math.PI / 180
+  const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a))
+}
+
 const PRIMARY_ENDPOINT = 'https://overpass-api.de/api/interpreter'
 const FALLBACK_ENDPOINT = 'https://overpass.kumi.systems/api/interpreter'
 
@@ -115,7 +123,7 @@ async function enrichAddresses(venues, signal) {
   })
 }
 
-function parseElement(el, unverified = false) {
+function parseElement(el, unverified = false, coords = null) {
   const tags = el.tags || {}
   const lat = el.lat ?? el.center?.lat ?? null
   const lon = el.lon ?? el.center?.lon ?? null
@@ -126,11 +134,33 @@ function parseElement(el, unverified = false) {
   const name = tags.name && tags.name.trim() ? tags.name.trim() : null
   if (!name) return null
 
-  const phone = tags.phone || tags['contact:phone'] || null
-  const email = tags.email || tags['contact:email'] || null
-  const website = tags.website || tags['contact:website'] || tags['url'] || null
+  // Phone — check all OSM phone tag variants
+  const phone = tags.phone
+    || tags['contact:phone']
+    || tags['phone:mobile']
+    || tags['contact:mobile']
+    || tags['telephone']
+    || null
+
+  // Email
+  const email = tags.email
+    || tags['contact:email']
+    || null
+
+  // Website
+  const website = tags.website
+    || tags['contact:website']
+    || tags.url
+    || tags['contact:url']
+    || tags['website:official']
+    || null
+
   const address = composeAddress(tags)
   const openingHours = tags['opening_hours'] || null
+
+  const distanceKm = coords != null
+    ? haversineKm(coords.lat, coords.lon, lat, lon)
+    : null
 
   return {
     id: `${el.type}/${el.id}`,
@@ -144,6 +174,7 @@ function parseElement(el, unverified = false) {
     website,
     address,
     openingHours,
+    distanceKm,
     tags,
     unverified,
   }
@@ -196,7 +227,7 @@ export function useSportVenues(sportId, coords, radiusMeters) {
       if (fetchId !== fetchCountRef.current) return
 
       const primaryVenues = (primaryData.elements || [])
-        .map((el) => parseElement(el, false))
+        .map((el) => parseElement(el, false, coords))
         .filter(Boolean)
 
       let supplementaryVenues = []
@@ -205,7 +236,7 @@ export function useSportVenues(sportId, coords, radiusMeters) {
           const suppData = await fetchOverpass(supplementary, controller.signal)
           if (fetchId !== fetchCountRef.current) return
           supplementaryVenues = (suppData.elements || [])
-            .map((el) => parseElement(el, true))
+            .map((el) => parseElement(el, true, coords))
             .filter(Boolean)
         } catch (suppErr) {
           if (suppErr.name === 'AbortError') return
@@ -214,6 +245,14 @@ export function useSportVenues(sportId, coords, radiusMeters) {
       }
 
       const deduplicated = deduplicateVenues([...primaryVenues, ...supplementaryVenues])
+
+      // Sort by distance (closest first)
+      if (coords) {
+        deduplicated.sort((a, b) =>
+          haversineKm(coords.lat, coords.lon, a.lat, a.lon) -
+          haversineKm(coords.lat, coords.lon, b.lat, b.lon)
+        )
+      }
 
       // Enrich missing addresses via Nominatim reverse geocoding
       const enriched = await enrichAddresses(deduplicated, controller.signal)

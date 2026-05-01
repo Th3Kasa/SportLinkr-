@@ -53,8 +53,8 @@ export function composeAddress(tags) {
     tags['addr:housenumber'] && tags['addr:street']
       ? `${tags['addr:housenumber']} ${tags['addr:street']}`
       : tags['addr:street'],
-    tags['addr:suburb'],
-    tags['addr:city'],
+    tags['addr:suburb'] || tags['addr:neighbourhood'],
+    tags['addr:city'] || tags['addr:town'] || tags['addr:village'],
     tags['addr:state'],
     tags['addr:postcode'],
   ].filter(Boolean)
