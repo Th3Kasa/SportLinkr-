@@ -42,8 +42,8 @@ const HOW_IT_WORKS = [
   },
   {
     step: '03',
-    title: 'Get directions',
-    desc: 'Tap any venue to open Google Maps directions instantly.',
+    title: 'Contact Venue',
+    desc: 'Tap any venue to contact and play.',
     icon: 'Navigation',
   },
 ]
