@@ -4,7 +4,7 @@ import { MapPin, Sliders, X } from 'lucide-react'
 import { useReverseGeocode } from '../hooks/useReverseGeocode'
 import RadiusSlider from './RadiusSlider'
 
-export default function Header({ coords, radius, onRadiusChange, showControls = false }) {
+export default function Header({ coords, radius, onRadiusChange, showControls = false, hideSlider = false }) {
   const { place } = useReverseGeocode(coords?.lat, coords?.lon)
   const [mobileSliderOpen, setMobileSliderOpen] = useState(false)
 
@@ -44,17 +44,35 @@ export default function Header({ coords, radius, onRadiusChange, showControls = 
             </div>
           )}
 
+          {/* Desktop nav links — hidden on mobile, only shown when not on Results page */}
+          {!showControls && (
+            <nav className="hidden md:flex items-center gap-5 ml-4" aria-label="Site navigation">
+              <Link
+                to="/request-venue"
+                className="text-xs text-white/50 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50 rounded"
+              >
+                Request a Venue
+              </Link>
+              <Link
+                to="/request-sport"
+                className="text-xs text-white/50 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50 rounded"
+              >
+                Request a Sport
+              </Link>
+            </nav>
+          )}
+
           <div className="flex-1" />
 
           {/* Radius slider — desktop */}
-          {showControls && onRadiusChange && (
+          {!hideSlider && showControls && onRadiusChange && (
             <div className="hidden lg:flex items-center gap-3 w-56">
               <RadiusSlider value={radius} onChange={onRadiusChange} />
             </div>
           )}
 
           {/* Radius icon — mobile */}
-          {showControls && onRadiusChange && (
+          {!hideSlider && showControls && onRadiusChange && (
             <button
               className="lg:hidden w-9 h-9 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center hover:bg-white/[0.07] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50"
               onClick={() => setMobileSliderOpen((v) => !v)}
@@ -71,7 +89,7 @@ export default function Header({ coords, radius, onRadiusChange, showControls = 
         </div>
 
         {/* Mobile radius row */}
-        {showControls && mobileSliderOpen && onRadiusChange && (
+        {!hideSlider && showControls && mobileSliderOpen && onRadiusChange && (
           <div className="lg:hidden pb-3">
             <RadiusSlider value={radius} onChange={onRadiusChange} />
           </div>

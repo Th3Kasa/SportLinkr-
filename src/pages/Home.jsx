@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
+import Footer from '../components/Footer'
 import { Helmet } from 'react-helmet-async'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -495,126 +496,7 @@ export default function Home() {
           </section>
         </main>
 
-        {/* ── Footer ─────────────────────────────────────────────── */}
-        <footer
-          className="border-t border-white/[0.06] py-16 px-6 lg:px-8"
-          role="contentinfo"
-        >
-          <div className="max-w-7xl mx-auto">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-10 mb-12">
-              {/* Brand */}
-              <div className="col-span-2 md:col-span-1">
-                <div className="flex items-center gap-2 mb-4">
-                  <div
-                    className="w-8 h-8 rounded-xl flex items-center justify-center"
-                    style={{ background: 'linear-gradient(135deg, #A78BFA, #F472B6)' }}
-                    aria-hidden="true"
-                  >
-                    <MapPin className="w-[18px] h-[18px] text-white" />
-                  </div>
-                  <span className="font-semibold text-white">SportLinkr</span>
-                </div>
-                <p className="text-sm text-white/40 leading-relaxed max-w-[200px]">
-                  Find sports courts and venues near you, instantly.
-                </p>
-              </div>
-
-              {/* Sports */}
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-4">
-                  Sports
-                </p>
-                <ul className="space-y-2.5">
-                  {SPORTS.slice(0, 5).map((sport) => (
-                    <li key={sport.id}>
-                      <button
-                        onClick={() => handleSportClick(sport.id)}
-                        className="text-sm text-white/50 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50 rounded"
-                      >
-                        {sport.label}
-                      </button>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Resources */}
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-4">
-                  Resources
-                </p>
-                <ul className="space-y-2.5">
-                  <li>
-                    <a
-                      href="https://www.openstreetmap.org/copyright"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1.5"
-                    >
-                      OSM Attribution
-                      <ArrowUpRight className="w-3 h-3" aria-hidden="true" />
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="https://www.openstreetmap.org/fixthemap"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sm text-white/50 hover:text-white transition-colors flex items-center gap-1.5"
-                    >
-                      Add a venue
-                      <ArrowUpRight className="w-3 h-3" aria-hidden="true" />
-                    </a>
-                  </li>
-                </ul>
-              </div>
-
-              {/* Legal */}
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-white/30 mb-4">
-                  Legal
-                </p>
-                <ul className="space-y-2.5">
-                  <li>
-                    <a
-                      href="#"
-                      className="text-sm text-white/50 hover:text-white transition-colors"
-                    >
-                      Privacy
-                    </a>
-                  </li>
-                  <li>
-                    <a
-                      href="#"
-                      className="text-sm text-white/50 hover:text-white transition-colors"
-                    >
-                      Terms
-                    </a>
-                  </li>
-                </ul>
-              </div>
-            </div>
-
-            {/* Bottom bar */}
-            <div className="border-t border-white/[0.06] pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
-              <p className="text-xs text-white/25">
-                &copy; 2026 SportLinkr &middot; Built with React + OpenStreetMap data
-              </p>
-              <p className="text-xs text-white/25">
-                Venue data &copy;{' '}
-                <a
-                  href="https://www.openstreetmap.org/copyright"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-white/50 underline underline-offset-2"
-                >
-                  OpenStreetMap
-                </a>{' '}
-                contributors
-              </p>
-            </div>
-          </div>
-        </footer>
+        <Footer />
       </div>
     </>
   )

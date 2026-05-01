@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Map, List } from 'lucide-react'
 import Header from '../components/Header'
+import Footer from '../components/Footer'
 import SportFilterPills from '../components/SportFilterPills'
 import VenueCard from '../components/VenueCard'
 import VenueDetailModal from '../components/VenueDetailModal'
@@ -242,29 +243,7 @@ export default function Results() {
           </div>
         )}
 
-        {/* Footer */}
-        <footer className="py-6 px-6 text-center border-t border-white/[0.06] hidden lg:block" role="contentinfo">
-          <p className="text-xs text-white/20">
-            Venue data &copy;{' '}
-            <a
-              href="https://www.openstreetmap.org/copyright"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white/40 underline underline-offset-2"
-            >
-              OpenStreetMap
-            </a>{' '}
-            contributors. Map tiles &copy;{' '}
-            <a
-              href="https://carto.com/attributions"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="hover:text-white/40 underline underline-offset-2"
-            >
-              CARTO
-            </a>
-          </p>
-        </footer>
+        <Footer />
       </div>
 
       {/* Venue detail modal */}
