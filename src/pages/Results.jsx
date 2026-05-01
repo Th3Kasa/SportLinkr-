@@ -17,16 +17,10 @@ import { useSportVenues } from '../hooks/useSportVenues'
 import { useReverseGeocode } from '../hooks/useReverseGeocode'
 import { buildSportMeta } from '../utils/seo'
 import { getSport, SPORTS } from '../utils/sports'
+import { staggerContainer, fadeUp } from '../utils/motion'
 
 // Lazy-load the map to avoid SSR issues with Leaflet
 const MapView = React.lazy(() => import('../components/MapView'))
-
-const staggerContainer = {
-  hidden: {},
-  show: {
-    transition: { staggerChildren: 0.05 },
-  },
-}
 
 const DEFAULT_RADIUS = 10
 
@@ -49,13 +43,6 @@ export default function Results() {
   const { coords: geoCoords, error: geoError, loading: geoLoading, request: requestGeo } = useGeolocation()
   const coords = navCoords || geoCoords
 
-  // Auto-request if no coords from navigation
-  useEffect(() => {
-    if (!navCoords && !geoCoords && !geoLoading) {
-      // Don't auto-request — show prompt
-    }
-  }, [navCoords, geoCoords, geoLoading])
-
   const sport = getSport(activeSport)
   const { place } = useReverseGeocode(coords?.lat, coords?.lon)
   const meta = buildSportMeta(sport.label, place)
@@ -77,7 +64,7 @@ export default function Results() {
     setRadius((r) => Math.min(r + 5, 25))
   }
 
-  const skeletonCount = 6
+  const skeletonCount = 4
 
   return (
     <>
@@ -86,7 +73,7 @@ export default function Results() {
         <meta name="description" content={meta.description} />
       </Helmet>
 
-      <div className="min-h-screen bg-bg flex flex-col">
+      <div className="min-h-screen bg-[#0A0A0F] flex flex-col">
         {/* Header */}
         <Header
           coords={coords}
@@ -95,10 +82,23 @@ export default function Results() {
           showControls={!!coords}
         />
 
-        {/* Sport filter pills */}
+        {/* Sport filter bar */}
         {coords && (
-          <div className="sticky top-14 z-20 bg-bg/90 backdrop-blur-xl border-b border-white/5 px-4 sm:px-6 py-3">
-            <SportFilterPills activeSport={activeSport} onChange={handleSportChange} />
+          <div
+            className="sticky top-[64px] z-20 bg-[#0A0A0F]/80 backdrop-blur-xl border-b border-white/[0.06]"
+            aria-label="Sport filter"
+          >
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <SportFilterPills activeSport={activeSport} onChange={handleSportChange} />
+              </div>
+              {!loading && !error && venues.length > 0 && (
+                <p className="text-xs text-white/40 shrink-0 hidden sm:block">
+                  <span className="text-white font-medium">{venues.length}</span>
+                  {' '}venues within {radius}km
+                </p>
+              )}
+            </div>
           </div>
         )}
 
@@ -112,15 +112,19 @@ export default function Results() {
             />
           </main>
         ) : (
-          <main className="flex-1 max-w-screen-xl mx-auto w-full px-4 sm:px-6 py-6" role="main" aria-label={`${sport.label} venues near you`}>
-            {/* Mobile list/map toggle */}
-            <div className="lg:hidden flex gap-2 mb-4">
+          <main
+            className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6"
+            role="main"
+            aria-label={`${sport.label} venues near you`}
+          >
+            {/* Mobile list/map segment control */}
+            <div className="lg:hidden flex gap-1 mb-5 p-1 bg-white/[0.03] border border-white/[0.06] rounded-full w-fit">
               <button
                 onClick={() => setMobileView('list')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50 ${
                   mobileView === 'list'
-                    ? 'bg-accent/20 border border-accent/30 text-accent'
-                    : 'bg-white/5 border border-white/10 text-white/60 hover:text-white'
+                    ? 'bg-white/[0.08] text-white'
+                    : 'text-white/50 hover:text-white'
                 }`}
                 aria-label="Show list view"
                 aria-pressed={mobileView === 'list'}
@@ -130,10 +134,10 @@ export default function Results() {
               </button>
               <button
                 onClick={() => setMobileView('map')}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50 ${
                   mobileView === 'map'
-                    ? 'bg-accent/20 border border-accent/30 text-accent'
-                    : 'bg-white/5 border border-white/10 text-white/60 hover:text-white'
+                    ? 'bg-white/[0.08] text-white'
+                    : 'text-white/50 hover:text-white'
                 }`}
                 aria-label="Show map view"
                 aria-pressed={mobileView === 'map'}
@@ -143,28 +147,20 @@ export default function Results() {
               </button>
             </div>
 
-            <div className="lg:grid lg:grid-cols-[1fr,420px] lg:gap-6">
+            <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_500px] lg:gap-8">
               {/* Left: venue list */}
               <div className={`${mobileView === 'map' ? 'hidden lg:block' : ''}`}>
-                {/* Result count */}
-                {!loading && !error && venues.length > 0 && (
-                  <p className="text-sm text-white/40 mb-4">
-                    <span className="text-white font-medium">{venues.length}</span> {sport.label} venue{venues.length !== 1 ? 's' : ''} within {radius} km
-                    {place ? ` of ${place}` : ''}
-                  </p>
-                )}
-
-                {/* Skeletons */}
+                {/* Loading skeletons */}
                 {loading && (
-                  <motion.div
-                    className="grid sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4"
+                  <div
+                    className="flex flex-col gap-4"
                     aria-label="Loading venues"
                     aria-busy="true"
                   >
                     {Array.from({ length: skeletonCount }).map((_, i) => (
                       <SkeletonCard key={i} />
                     ))}
-                  </motion.div>
+                  </div>
                 )}
 
                 {/* Error */}
@@ -181,14 +177,14 @@ export default function Results() {
                   />
                 )}
 
-                {/* Cards */}
+                {/* Cards stagger list */}
                 {!loading && !error && venues.length > 0 && (
                   <motion.div
                     key={activeSport}
-                    variants={staggerContainer}
+                    variants={staggerContainer(0.05, 0)}
                     initial="hidden"
                     animate="show"
-                    className="grid sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4"
+                    className="flex flex-col gap-4"
                     aria-label={`${sport.label} venues`}
                   >
                     <AnimatePresence mode="popLayout">
@@ -202,9 +198,7 @@ export default function Results() {
                           />
                           {/* Ad slot every 5 venues */}
                           {(index + 1) % 5 === 0 && index !== venues.length - 1 && (
-                            <div className="sm:col-span-2 lg:col-span-1 xl:col-span-2">
-                              <AdSlot />
-                            </div>
+                            <AdSlot />
                           )}
                         </React.Fragment>
                       ))}
@@ -213,17 +207,17 @@ export default function Results() {
                 )}
               </div>
 
-              {/* Right: map */}
+              {/* Right: sticky map */}
               <div
                 className={`
-                  lg:sticky lg:top-[calc(3.5rem+56px)] lg:self-start
+                  lg:sticky lg:top-[140px] lg:self-start
                   ${mobileView === 'list' ? 'hidden lg:block' : ''}
                 `}
                 style={{ height: 'calc(100vh - 160px)' }}
               >
                 <Suspense
                   fallback={
-                    <div className="w-full h-full rounded-2xl bg-surface border border-white/10 flex items-center justify-center">
+                    <div className="w-full h-full rounded-3xl bg-white/[0.03] border border-white/[0.06] flex items-center justify-center">
                       <p className="text-white/30 text-sm">Loading map...</p>
                     </div>
                   }
@@ -249,7 +243,7 @@ export default function Results() {
         )}
 
         {/* Footer */}
-        <footer className="py-6 px-6 text-center border-t border-white/5 hidden lg:block" role="contentinfo">
+        <footer className="py-6 px-6 text-center border-t border-white/[0.06] hidden lg:block" role="contentinfo">
           <p className="text-xs text-white/20">
             Venue data &copy;{' '}
             <a

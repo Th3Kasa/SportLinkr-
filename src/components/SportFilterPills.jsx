@@ -11,7 +11,7 @@ function SportIcon({ iconName, className }) {
 export default function SportFilterPills({ activeSport, onChange }) {
   return (
     <div
-      className="flex gap-2 overflow-x-auto pb-1 scrollbar-none"
+      className="relative flex gap-2 overflow-x-auto scrollbar-hide pb-0.5"
       role="tablist"
       aria-label="Sport filter"
     >
@@ -26,20 +26,20 @@ export default function SportFilterPills({ activeSport, onChange }) {
             aria-selected={isActive}
             className={`
               relative flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap text-sm font-medium
-              transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-accent
+              transition-colors shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50
               ${isActive
-                ? 'text-bg'
-                : 'text-white/60 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10'
+                ? 'text-white'
+                : 'text-white/50 hover:text-white bg-white/[0.03] hover:bg-white/[0.06] border border-white/[0.06] hover:border-white/10'
               }
             `}
-            style={isActive ? {} : {}}
           >
             {isActive && (
               <motion.span
-                layoutId="active-pill-bg"
-                className="absolute inset-0 rounded-full"
+                layoutId="activeSport"
+                className="absolute inset-0 rounded-full border"
                 style={{
-                  background: `linear-gradient(135deg, #A78BFA, #F472B6)`,
+                  background: 'linear-gradient(135deg, rgba(167,139,250,0.18), rgba(244,114,182,0.18))',
+                  borderColor: 'rgba(167,139,250,0.35)',
                 }}
                 transition={{ type: 'spring', stiffness: 400, damping: 30 }}
               />
@@ -47,7 +47,7 @@ export default function SportFilterPills({ activeSport, onChange }) {
             <span className="relative z-10 flex items-center gap-2">
               <SportIcon
                 iconName={sport.icon}
-                className={`w-4 h-4 ${isActive ? 'text-bg' : ''}`}
+                className="w-3.5 h-3.5"
               />
               {sport.label}
             </span>

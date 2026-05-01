@@ -46,6 +46,7 @@ export function buildMapsUrl(name, lat, lon) {
 
 /**
  * Composes a readable address from OSM addr tags.
+ * Returns null if no address parts are found.
  */
 export function composeAddress(tags) {
   const parts = [
@@ -58,6 +59,27 @@ export function composeAddress(tags) {
     tags['addr:postcode'],
   ].filter(Boolean)
   return parts.length > 0 ? parts.join(', ') : null
+}
+
+/**
+ * Formats a phone number. Returns the value or null.
+ */
+export function formatPhone(p) {
+  return p && p.trim() ? p.trim() : null
+}
+
+/**
+ * Formats an email address. Returns the value or null.
+ */
+export function formatEmail(e) {
+  return e && e.trim() ? e.trim() : null
+}
+
+/**
+ * Formats an address from tags. Returns null if no address parts found.
+ */
+export function formatAddress(tags) {
+  return composeAddress(tags)
 }
 
 /**

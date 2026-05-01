@@ -1,60 +1,71 @@
 import { motion } from 'framer-motion'
-import { MapPin, AlertCircle, Activity, Navigation } from 'lucide-react'
+import { MapPin, AlertCircle, Navigation, ArrowRight } from 'lucide-react'
+import { fadeUp, staggerContainer } from '../utils/motion'
 
 export default function LocationPrompt({ error, loading, onRequest }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] px-6 text-center">
       <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        variants={staggerContainer(0.08)}
+        initial="hidden"
+        animate="show"
         className="max-w-sm w-full"
       >
         {error ? (
           <>
-            <div className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6">
-              <AlertCircle className="w-7 h-7 text-amber-400" aria-hidden="true" />
-            </div>
-            <h2 className="text-xl font-bold text-white mb-3">
-              Location access needed
-            </h2>
-            <p className="text-white/50 text-sm mb-6 leading-relaxed">{error}</p>
-            <button
-              onClick={onRequest}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+            <motion.div
+              variants={fadeUp}
+              className="w-16 h-16 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto mb-6"
             >
-              <Activity className="w-4 h-4" aria-hidden="true" />
+              <AlertCircle className="w-7 h-7 text-amber-400" aria-hidden="true" />
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="text-2xl font-semibold tracking-tight text-white mb-3">
+              Location access needed
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-[15px] text-white/50 mb-8 leading-relaxed">
+              {error}
+            </motion.p>
+            <motion.button
+              variants={fadeUp}
+              onClick={onRequest}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white transition-all hover:shadow-[0_0_32px_-6px_rgba(167,139,250,0.5)] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50"
+              style={{ background: 'linear-gradient(135deg, #A78BFA, #F472B6)' }}
+            >
+              <Navigation className="w-4 h-4" aria-hidden="true" />
               Try again
-            </button>
+            </motion.button>
           </>
         ) : (
           <>
-            <div className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 flex items-center justify-center mx-auto mb-6">
+            <motion.div
+              variants={fadeUp}
+              className="w-16 h-16 rounded-2xl bg-violet-500/10 border border-violet-400/20 flex items-center justify-center mx-auto mb-6"
+            >
               {loading ? (
-                <Navigation
-                  className="w-7 h-7 text-accent animate-spin"
-                  aria-hidden="true"
-                />
+                <Navigation className="w-7 h-7 text-violet-400 animate-spin" aria-hidden="true" />
               ) : (
-                <MapPin className="w-7 h-7 text-accent" aria-hidden="true" />
+                <MapPin className="w-7 h-7 text-violet-400" aria-hidden="true" />
               )}
-            </div>
-            <h2 className="text-xl font-bold text-white mb-3">
+            </motion.div>
+            <motion.h2 variants={fadeUp} className="text-2xl font-semibold tracking-tight text-white mb-3">
               {loading ? 'Getting your location...' : 'Allow location access'}
-            </h2>
-            <p className="text-white/50 text-sm mb-6 leading-relaxed">
+            </motion.h2>
+            <motion.p variants={fadeUp} className="text-[15px] text-white/50 mb-8 leading-relaxed">
               {loading
                 ? 'Finding venues near you. This may take a moment.'
                 : 'SportLinkr needs your location to find nearby sports venues. Your location stays on your device.'}
-            </p>
+            </motion.p>
             {!loading && (
-              <button
+              <motion.button
+                variants={fadeUp}
                 onClick={onRequest}
-                className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-accent text-bg font-semibold hover:bg-accent/90 transition-all shadow-glow hover:shadow-glow focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-bg"
+                className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white transition-all hover:shadow-[0_0_32px_-6px_rgba(167,139,250,0.5)] hover:scale-[1.02] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50"
+                style={{ background: 'linear-gradient(135deg, #A78BFA, #F472B6)' }}
               >
                 <Navigation className="w-4 h-4" aria-hidden="true" />
                 Detect my location
-              </button>
+                <ArrowRight className="w-4 h-4" aria-hidden="true" />
+              </motion.button>
             )}
           </>
         )}

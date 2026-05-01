@@ -9,11 +9,13 @@ import {
   Copy,
   Check,
   Navigation,
-  Search,
+  Clock,
+  AlertCircle,
 } from 'lucide-react'
 import * as LucideIcons from 'lucide-react'
 import { buildDirectionsUrl, buildContactString } from '../utils/formatters'
 import { getSport } from '../utils/sports'
+import { scaleIn } from '../utils/motion'
 
 function SportIcon({ iconName, className, style }) {
   const Icon = LucideIcons[iconName]
@@ -24,8 +26,8 @@ function SportIcon({ iconName, className, style }) {
 function InfoRow({ icon: Icon, label, value, href }) {
   if (!value) return null
   return (
-    <div className="flex items-start gap-3 py-3 border-b border-white/5 last:border-0">
-      <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center shrink-0 mt-0.5">
+    <div className="flex items-start gap-3 py-3 border-b border-white/[0.06] last:border-0">
+      <div className="w-8 h-8 rounded-lg bg-white/[0.04] border border-white/[0.06] flex items-center justify-center shrink-0 mt-0.5">
         <Icon className="w-4 h-4 text-white/40" aria-hidden="true" />
       </div>
       <div className="flex-1 min-w-0">
@@ -35,12 +37,12 @@ function InfoRow({ icon: Icon, label, value, href }) {
             href={href}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-sm text-accent hover:underline break-all"
+            className="text-sm text-violet-400 hover:text-violet-300 hover:underline break-all transition-colors"
           >
             {value}
           </a>
         ) : (
-          <p className="text-sm text-white/80 break-words">{value}</p>
+          <p className="text-sm text-white/80 break-words leading-relaxed">{value}</p>
         )}
       </div>
     </div>
@@ -81,27 +83,22 @@ export default function VenueDetailModal({ venue, sportId, onClose }) {
         aria-label={`Details for ${venue.name}`}
       >
         {/* Backdrop */}
-        <motion.div
-          className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-        />
+        <div className="absolute inset-0 bg-black/70 backdrop-blur-md" />
 
-        {/* Modal */}
+        {/* Modal panel */}
         <motion.div
-          initial={{ opacity: 0, y: 60, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 60, scale: 0.97 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 35 }}
+          variants={scaleIn}
+          initial="hidden"
+          animate="show"
+          exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
           onClick={(e) => e.stopPropagation()}
-          className="relative z-10 w-full sm:max-w-lg bg-surface border border-white/10 rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
+          className="relative z-10 w-full sm:max-w-xl bg-[#10101A] border border-white/[0.06] rounded-t-3xl sm:rounded-3xl overflow-hidden shadow-2xl max-h-[85vh] flex flex-col"
         >
           {/* Header */}
-          <div className="flex items-start gap-3 p-6 border-b border-white/5">
+          <div className="flex items-start gap-3 p-8 pb-6 border-b border-white/[0.06]">
             <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
-              style={{ background: `${sport.color}20`, border: `1px solid ${sport.color}40` }}
+              className="w-11 h-11 rounded-xl flex items-center justify-center shrink-0"
+              style={{ background: `${sport.color}18`, border: `1px solid ${sport.color}30` }}
             >
               <SportIcon iconName={sport.icon} className="w-5 h-5" style={{ color: sport.color }} />
             </div>
@@ -112,13 +109,19 @@ export default function VenueDetailModal({ venue, sportId, onClose }) {
               >
                 {sport.label}
               </p>
-              <h2 className="text-lg font-bold text-white leading-tight pr-2">
+              <h2 className="text-xl font-semibold text-white leading-tight pr-2 tracking-tight">
                 {venue.name}
               </h2>
+              {venue.address && (
+                <p className="text-sm text-white/50 mt-1 flex items-center gap-1.5">
+                  <MapPin className="w-3 h-3 shrink-0" aria-hidden="true" />
+                  {venue.address}
+                </p>
+              )}
             </div>
             <button
               onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30 shrink-0"
+              className="w-8 h-8 rounded-full bg-white/[0.04] border border-white/[0.06] hover:bg-white/[0.08] flex items-center justify-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50 shrink-0"
               aria-label="Close modal"
             >
               <X className="w-4 h-4 text-white/60" aria-hidden="true" />
@@ -127,8 +130,8 @@ export default function VenueDetailModal({ venue, sportId, onClose }) {
 
           {/* Unverified banner */}
           {venue.unverified && (
-            <div className="px-6 py-3 bg-amber-400/5 border-b border-amber-400/10 flex items-center gap-2">
-              <Search className="w-4 h-4 text-amber-400 shrink-0" aria-hidden="true" />
+            <div className="px-8 py-3 bg-amber-400/[0.05] border-b border-amber-400/10 flex items-center gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-400 shrink-0" aria-hidden="true" />
               <p className="text-xs text-amber-400/80">
                 This venue may offer {sport.label} — please verify before visiting.
               </p>
@@ -136,12 +139,30 @@ export default function VenueDetailModal({ venue, sportId, onClose }) {
           )}
 
           {/* Content */}
-          <div className="flex-1 overflow-y-auto p-6">
-            <InfoRow icon={MapPin} label="Address" value={venue.address || 'Not listed'} />
-            <InfoRow icon={Phone} label="Phone" value={venue.phone} href={venue.phone ? `tel:${venue.phone}` : null} />
-            <InfoRow icon={Mail} label="Email" value={venue.email} href={venue.email ? `mailto:${venue.email}` : null} />
-            <InfoRow icon={ExternalLink} label="Website" value={venue.website} href={venue.website} />
-            <InfoRow icon={Navigation} label="Opening Hours" value={venue.openingHours} />
+          <div className="flex-1 overflow-y-auto px-8 py-4">
+            <InfoRow
+              icon={Phone}
+              label="Phone"
+              value={venue.phone}
+              href={venue.phone ? `tel:${venue.phone}` : null}
+            />
+            <InfoRow
+              icon={Mail}
+              label="Email"
+              value={venue.email}
+              href={venue.email ? `mailto:${venue.email}` : null}
+            />
+            <InfoRow
+              icon={ExternalLink}
+              label="Website"
+              value={venue.website}
+              href={venue.website}
+            />
+            <InfoRow
+              icon={Clock}
+              label="Opening Hours"
+              value={venue.openingHours}
+            />
             <InfoRow
               icon={MapPin}
               label="Coordinates"
@@ -150,32 +171,48 @@ export default function VenueDetailModal({ venue, sportId, onClose }) {
           </div>
 
           {/* Actions */}
-          <div className="p-6 border-t border-white/5 flex gap-3">
+          <div className="p-8 pt-6 border-t border-white/[0.06] flex gap-3">
             <a
               href={directionsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-1 focus-visible:ring-offset-surface"
+              className="flex-1 flex items-center justify-center gap-2 px-5 py-3 rounded-full text-sm font-semibold text-white transition-all hover:shadow-[0_0_32px_-6px_rgba(167,139,250,0.5)] focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50"
+              style={{ background: 'linear-gradient(135deg, #A78BFA, #F472B6)' }}
+              aria-label={`Get directions to ${venue.name}`}
             >
-              <ExternalLink className="w-4 h-4" aria-hidden="true" />
+              <Navigation className="w-4 h-4" aria-hidden="true" />
               Get Directions
             </a>
             <button
               onClick={handleCopy}
-              className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white/5 border border-white/10 text-white/60 font-medium hover:text-white hover:bg-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-white/30"
+              className="flex items-center justify-center gap-2 px-5 py-3 rounded-full bg-white/[0.04] border border-white/[0.06] text-white/60 text-sm font-medium hover:text-white hover:bg-white/[0.07] hover:border-white/10 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/50"
               aria-label="Copy contact info to clipboard"
             >
-              {copied ? (
-                <>
-                  <Check className="w-4 h-4 text-green-400" aria-hidden="true" />
-                  <span className="text-green-400 text-sm">Copied</span>
-                </>
-              ) : (
-                <>
-                  <Copy className="w-4 h-4" aria-hidden="true" />
-                  <span className="text-sm">Copy</span>
-                </>
-              )}
+              <AnimatePresence mode="wait" initial={false}>
+                {copied ? (
+                  <motion.span
+                    key="copied"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="flex items-center gap-2 text-green-400"
+                  >
+                    <Check className="w-4 h-4" aria-hidden="true" />
+                    Copied
+                  </motion.span>
+                ) : (
+                  <motion.span
+                    key="copy"
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="flex items-center gap-2"
+                  >
+                    <Copy className="w-4 h-4" aria-hidden="true" />
+                    Copy Info
+                  </motion.span>
+                )}
+              </AnimatePresence>
             </button>
           </div>
         </motion.div>
